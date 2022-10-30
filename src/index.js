@@ -4,6 +4,7 @@ import { useWorldAtlas } from "./useWorldAtlas";
 import { useData } from "./useData";
 import ReactDropdown from "react-dropdown";
 import { BubbleMap } from "./BubbleMap/index.js";
+import { MarkedMap } from "./MarkedMap/index.js";
 import { DateHistogram } from "./DateHistogram/index.js";
 // import { dropdownMenu } from "./DropdownMenu";
 import "./styles.css";
@@ -72,9 +73,7 @@ const App = () => {
   return (
     <>
       <svg width={width} height={height}>
-        <BubbleMap
-          data={data}
-          filteredData={filteredData}
+        <MarkedMap
           worldAtlas={worldAtlas}
         />
         {/* <dropdownMenu 
