@@ -55,7 +55,6 @@ export const DateHistogram = ({
         x1: array.x1,
       }));
   }, [xValue, yValue, xScale, data]);
-  console.log(binnedData);
 
   const yScale = useMemo(
     () =>

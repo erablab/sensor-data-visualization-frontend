@@ -6,11 +6,6 @@ export const Marks = ({
   xValue,
   yValue,
 }) => {
-  console.log(binnedData);
-  console.log(xScale);
-  console.log(yScale);
-  console.log(xValue);
-  console.log(yValue);
   return (<g className="line-chart-marks">
     <path
       fill="none"
