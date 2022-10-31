@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { useWorldAtlas } from "./useWorldAtlas";
 import { useData } from "./useData";
@@ -6,6 +6,11 @@ import ReactDropdown from "react-dropdown";
 import { BubbleMap } from "./BubbleMap/index.js";
 import { MarkedMap } from "./MarkedMap/index.js";
 import { DateHistogram } from "./DateHistogram/index.js";
+import { LineChart } from "./LineChart/index.js";
+
+import Axios from "axios";
+import { allData } from "./getAllSensorData";
+import { useRef } from "react";
 // import { dropdownMenu } from "./DropdownMenu";
 import "./styles.css";
 import {
@@ -21,8 +26,8 @@ import {
   select,
   event,
 } from "d3";
-const width = 960;
-const height = 500;
+const width = 600;
+const height = 300;
 const dateHistogramSize = 0.2;
 const margin = { top: 20, right: 30, bottom: 65, left: 90 };
 const xValue = (d) => d["Reported Date"];
@@ -57,8 +62,17 @@ const App = () => {
   const yAxisLabel = getLabel(yAttribute);
   const worldAtlas = useWorldAtlas();
   const data = useData();
+  let allSensorData = allData;
+
   const [brushExtent, setBrushExtent] = useState();
-  console.log(data); /////////
+  useEffect(() => {
+    Axios.get("http://localhost:3100/Air_Quality_Sensor/eco2", {}).then(
+      (response) => {
+        console.log(response);
+        // setData(response.data);
+      }
+    );
+  }, [yAttribute]);
   if (!worldAtlas || !data) {
     return <pre>Loading...</pre>;
   }
@@ -71,11 +85,9 @@ const App = () => {
     : data;
 
   return (
-    <>
+    <div>
       <svg width={width} height={height}>
-        <MarkedMap
-          worldAtlas={worldAtlas}
-        />
+        <MarkedMap worldAtlas={worldAtlas} />
         {/* <dropdownMenu 
         options={}
         onOptionClicked=
@@ -98,6 +110,15 @@ const App = () => {
           onChange={({ value }) => setYAttribute(value)}
         />
       </div>
+      <svg width={width} height={dateHistogramSize * height}>
+          <LineChart
+            data={data}
+            width={width}
+            height={dateHistogramSize * height}
+            setBrushExtent={setBrushExtent}
+            xValue={xValue}
+          />
+      </svg>
       <svg width={width} height={height}>
         <BubbleMap
           data={data}
@@ -108,25 +129,8 @@ const App = () => {
         options={}
         onOptionClicked=
       /> */}
-        <div className="menu-container">
-          <span className="dropdown-label">Select Sensor Data</span>
-          <ReactDropdown
-            options={attributes}
-            value={yAttribute}
-            onChange={({ value }) => setYAttribute(value)}
-          />
-        </div>
-        <g transform={`translate(0, ${height - dateHistogramSize * height})`}>
-          <DateHistogram
-            data={data}
-            width={width}
-            height={dateHistogramSize * height}
-            setBrushExtent={setBrushExtent}
-            xValue={xValue}
-          />
-        </g>
       </svg>
-    </>
+    </div>
   );
 };
 // const rootElement = document.getElementById('root');

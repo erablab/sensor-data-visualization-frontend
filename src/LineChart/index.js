@@ -6,6 +6,7 @@ import {
   extent,
   bin,
   timeMonths,
+  mean,
   sum,
   brushX,
   brush,
@@ -13,8 +14,6 @@ import {
   event,
 } from "d3";
 import { useRef, useEffect, useMemo } from "react";
-import { AxisBottom } from "./AxisBottom";
-import { AxisLeft } from "./AxisLeft";
 import { Marks } from "./Marks";
 
 const margin = { top: 0, right: 30, bottom: 20, left: 45 };
@@ -26,9 +25,11 @@ const xAxisLabel = "Time";
 let brushWindowBegin = null;
 let brushWindowEnd = null;
 const yValue = (d) => d["Total Dead and Missing"];
+const xV = (d) => d.x;
+const yV = (d) => d.y;
 const yAxisLabel = "Total Dead and Missing";
 
-export const DateHistogram = ({
+export const LineChart = ({
   data,
   width,
   height,
@@ -51,12 +52,10 @@ export const DateHistogram = ({
       .thresholds(timeMonths(start, stop))(data)
       .map((array) => ({
         y: sum(array, yValue),
-        x0: array.x0,
-        x1: array.x1,
+        x: array.x0,
       }));
   }, [xValue, yValue, xScale, data]);
   console.log(binnedData);
-
   const yScale = useMemo(
     () =>
       scaleLinear()
@@ -94,43 +93,15 @@ export const DateHistogram = ({
 
   return (
     <>
-      <rect width={width} height={height} fill="white" />
-      <g transform={`translate(${margin.left},${margin.top})`}>
-        <AxisBottom
-          xScale={xScale}
-          innerHeight={innerHeight}
-          tickFormat={xAxisTickFormat}
-          tickOffset={5}
-        />
-        <text
-          className="axis-label"
-          textAnchor="middle"
-          transform={`translate(${-yAxisLabelOffset},${
-            innerHeight / 2
-          }) rotate(-90)`}
-        >
-          {yAxisLabel}
-        </text>
-        <AxisLeft yScale={yScale} innerWidth={innerWidth} tickOffset={5} />
-        <text
-          className="axis-label"
-          x={innerWidth / 2}
-          y={innerHeight + xAxisLabelOffset}
-          textAnchor="middle"
-        >
-          {xAxisLabel}
-        </text>
         <Marks
           binnedData={binnedData}
           xScale={xScale}
           yScale={yScale}
-          tooltipFormat={(d) => d}
-          circleRadius={2}
-          innerHeight={innerHeight}
+          xValue={xV}
+          yValue={yV}
         />
         <g ref={brushRef} />
         <svg width={width} height={height} id="dataviz_brushing1D"></svg>
-      </g>
     </>
   );
 };
