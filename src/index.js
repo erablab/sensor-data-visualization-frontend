@@ -7,7 +7,6 @@ import { BubbleMap } from "./BubbleMap/index.js";
 import { MarkedMap } from "./MarkedMap/index.js";
 import { DateHistogram } from "./DateHistogram/index.js";
 import { LineChart } from "./LineChart/index.js";
-
 import Axios from "axios";
 import { allData } from "./getAllSensorData";
 import { useRef } from "react";
@@ -17,7 +16,7 @@ import {
   scaleLinear,
   scaleTime,
   max,
-  timeFormat,
+  timeParse,
   extent,
   bin,
   timeMonths,
@@ -30,22 +29,23 @@ const width = 600;
 const height = 300;
 const dateHistogramSize = 0.2;
 const margin = { top: 20, right: 30, bottom: 65, left: 90 };
-const xValue = (d) => d["Reported Date"];
-const initialYAttribute = "Temperature";
+const xValue = (d) => d["timestamp"];
+
+const initialYAttribute = "temp_hmd_pres_alt_sensor/t";
 
 const attributes = [
-  { value: "t", label: "Air Temperature" },
-  { value: "p", label: "Air Pressure" },
-  { value: "a", label: "Altitude" },
-  { value: "h", label: "Air Humidity" },
-  { value: "mSoil", label: "Soil Moisture" },
-  { value: "tSoil", label: "Soil Temperature" },
-  { value: "lVis", label: "Visible Light" },
-  { value: "lIR", label: "Infrared Light" },
-  { value: "lLux", label: "Luminous Light" },
-  { value: "lFull", label: "Total Light" },
-  { value: "tvoc", label: "Total Volatile Organic Compounds" },
-  { value: "eco2", label: "CO2" },
+  { value: "temp_hmd_pres_alt_sensor/t", label: "Air Temperature" },
+  { value: "temp_hmd_pres_alt_sensor/p", label: "Air Pressure" },
+  { value: "temp_hmd_pres_alt_sensor/a", label: "Altitude" },
+  { value: "temp_hmd_pres_alt_sensor/h", label: "Air Humidity" },
+  { value: "soil_sensor/mSoil", label: "Soil Moisture" },
+  { value: "soil_sensor/tSoil", label: "Soil Temperature" },
+  { value: "light_sensor/lVis", label: "Visible Light" },
+  { value: "light_sensor/lIR", label: "Infrared Light" },
+  { value: "light_sensor/lLux", label: "Luminous Light" },
+  { value: "light_sensor/lFull", label: "Total Light" },
+  { value: "air_quality_sensor/tvoc", label: "Total Volatile Organic Compounds" },
+  { value: "air_quality_sensor/eco2", label: "CO2" },
 ];
 
 const getLabel = (value) => {
@@ -58,24 +58,36 @@ const getLabel = (value) => {
 
 const App = () => {
   const [yAttribute, setYAttribute] = useState(initialYAttribute);
-  const yValue = (d) => d[yAttribute];
+  const sensorData = yAttribute.split("/")[1];
+  console.log(sensorData);
+  const [data, setData] = useState(null);
   const yAxisLabel = getLabel(yAttribute);
   const worldAtlas = useWorldAtlas();
-  const data = useData();
-  let allSensorData = allData;
+  // const data = useData();
+  const yValue = (d) => d[sensorData];
 
   const [brushExtent, setBrushExtent] = useState();
   useEffect(() => {
-    Axios.get("http://localhost:3100/Air_Quality_Sensor/eco2", {}).then(
+    const route = "http://localhost:3100/" + yAttribute;
+    Axios.get(route, {}).then(
       (response) => {
-        console.log(response);
-        // setData(response.data);
+        setData(response.data.result);
       }
     );
+    console.log(route);
   }, [yAttribute]);
+
   if (!worldAtlas || !data) {
     return <pre>Loading...</pre>;
   }
+  console.log(data);
+
+  data.map(d => {
+    const parseTime = timeParse("%Y-%m-%dT%H:%M:%S.000Z");
+    d.timestamp = parseTime(d.timestamp);
+    return d;
+  });
+  console.log(data);
 
   const filteredData = brushExtent
     ? data.filter((d) => {
@@ -92,7 +104,7 @@ const App = () => {
         options={}
         onOptionClicked=
       /> */}
-        <g transform={`translate(0, ${height - dateHistogramSize * height})`}>
+        {/* <g transform={`translate(0, ${height - dateHistogramSize * height})`}>
           <DateHistogram
             data={data}
             width={width}
@@ -100,7 +112,7 @@ const App = () => {
             setBrushExtent={setBrushExtent}
             xValue={xValue}
           />
-        </g>
+        </g> */}
       </svg>
       <div className="menu-container">
         <span className="dropdown-label">Select Sensor Data</span>
@@ -117,19 +129,20 @@ const App = () => {
             height={dateHistogramSize * height}
             setBrushExtent={setBrushExtent}
             xValue={xValue}
+            yValue={yValue}
           />
       </svg>
-      <svg width={width} height={height}>
-        <BubbleMap
+      {/* <svg width={width} height={height}> */}
+        {/* <BubbleMap
           data={data}
           filteredData={filteredData}
           worldAtlas={worldAtlas}
-        />
+        /> */}
         {/* <dropdownMenu 
         options={}
         onOptionClicked=
       /> */}
-      </svg>
+      {/* </svg> */}
     </div>
   );
 };
