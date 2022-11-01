@@ -11,12 +11,7 @@ import Axios from "axios";
 import { allData } from "./getAllSensorData";
 import { useRef } from "react";
 import { HeatMap } from "./HeatMap/index.js";
-import {ContourMap} from "./ContourMap/index"
-
-
-import { VizWrapper } from "./ContourMap/index";
-
-
+import { ContourMap } from "./ContourMap/index";
 // import { dropdownMenu } from "./DropdownMenu";
 import "./styles.css";
 import {
@@ -35,8 +30,11 @@ import {
 const width = 600;
 const height = 300;
 const dateHistogramSize = 0.2;
+const heatMapSize = 0.5;
 const margin = { top: 20, right: 30, bottom: 65, left: 90 };
 const xValue = (d) => d["timestamp"];
+const xCoord = (d) => d["latitude"];
+const yCoord = (d) => d["longitude"];
 const xTestValue = (d) => d["Reported Date"];
 
 const initialYAttribute = "temp_hmd_pres_alt_sensor/t";
@@ -78,15 +76,14 @@ const App = () => {
   const [testBrushExtent, setTestBrushExtent] = useState();
   const [brushExtent, setBrushExtent] = useState();
   const [heatMapMomentExtent, setHeatMapMomentExtent] = useState();
-  const [refValue, setRefValue] = useState(null);
+  const [heatMapAreaExtent, setHeatMapAreaExtent] = useState();
 
   useEffect(() => {
     const route = "http://localhost:3100/" + yAttribute;
     Axios.get(route, {}).then((response) => {
       setData(response.data.result);
     });
-    setRefValue(null);
-  }, [yAttribute, heatMapMomentExtent, sensorData]);
+  }, [yAttribute, heatMapMomentExtent, heatMapAreaExtent, sensorData]);
 
   if (!worldAtlas || !data || !testData) {
     return <pre>Loading...</pre>;
@@ -104,15 +101,24 @@ const App = () => {
         return date > testBrushExtent[0] && date < testBrushExtent[1];
       })
     : testData;
-    // console.log(filteredTestData);
 
-  const filteredData = heatMapMomentExtent
+  const filteredTemperalData = heatMapMomentExtent
     ? data.filter((d) => {
         const date = xValue(d);
         return date > heatMapMomentExtent[0] && date < heatMapMomentExtent[1];
       })
-    : [];
+    : data;
+    console.log(heatMapAreaExtent);
 
+  //////////////TO DO
+  const filteredAreaData = heatMapAreaExtent
+    ? filteredTemperalData.filter((d) => {
+        const x = xCoord(d);
+        const y = yCoord(d);
+        return x > heatMapAreaExtent[0] && x < heatMapAreaExtent[3] && y >heatMapAreaExtent[1] && y < heatMapAreaExtent[2];
+      })
+    : filteredTemperalData;
+  console.log(filteredAreaData);
   return (
     <div>
       <svg width={width} height={height}>
@@ -150,21 +156,29 @@ const App = () => {
           data={data}
           width={width}
           height={dateHistogramSize * height}
-          setBrushExtent={setBrushExtent}
           xValue={xValue}
           yValue={yValue}
           yAxisLabel={yAxisLabel}
           setHeatMapMomentExtent={setHeatMapMomentExtent}
         />
       </svg>
-      <ContourMap data={filteredData} sensorData={sensorData}/>
-     <svg width={width} height={height}>
-        <HeatMap
+      <svg width={width * heatMapSize} height={height}>
+        <ContourMap
           data={data}
-          filteredData={filteredData}
           sensorData={sensorData}
+          setBrushExtent={setHeatMapAreaExtent}
+          width={width * heatMapSize}
+          height={height}
+          heatMapMomentExtent={heatMapMomentExtent}
         />
       </svg>
+      {/* <svg width={width} height={height}>
+        <HeatMap
+          data={data}
+          filteredData={filteredTemperalData}
+          sensorData={sensorData}
+        />
+      </svg> */}
       <svg width={width} height={height}>
         <BubbleMap
           data={testData}

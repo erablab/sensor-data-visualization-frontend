@@ -32,7 +32,6 @@ export const LineChart = ({
   data,
   width,
   height,
-  setBrushExtent,
   xValue,
   yValue,
   yAxisLabel,
@@ -66,7 +65,6 @@ export const LineChart = ({
         .range([innerHeight, 0]),
     [binnedData, innerHeight]
   );
-  console.log(hoverMoment);
   const brushRef = useRef();
 
   useEffect(() => {

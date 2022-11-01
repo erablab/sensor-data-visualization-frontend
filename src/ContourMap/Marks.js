@@ -1,6 +1,6 @@
 import { scaleLinear, extent, densityData, geoPath, contourDensity, min, max, useMemo } from "d3";
 
-export const viz = (
+export const Marks = (
   selection,
   { data, xValue, yValue, width, height, margin, sensorData }
 ) => {
