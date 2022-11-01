@@ -66,7 +66,7 @@ export const LineChart = ({
         .range([innerHeight, 0]),
     [binnedData, innerHeight]
   );
-
+  console.log(hoverMoment);
   const brushRef = useRef();
 
   useEffect(() => {
@@ -92,14 +92,21 @@ export const LineChart = ({
     //     setBrushExtent([brushWindowBegin, brushWindowEnd].map(xScale.invert));
     //   }
     // });
-    setHeatMapMomentExtent([(hoverMoment-20), (hoverMoment+20)].map(xScale.invert));
+    setHeatMapMomentExtent(
+      [hoverMoment - 20, hoverMoment + 20].map(xScale.invert)
+    );
   }, [innerWidth, innerHeight, hoverMoment]);
 
   return (
     <>
       <svg width={width} height={height} id="dataviz_brushing1D">
         <g ref={brushRef}>
-          <rect width={width} height={height} fill="white" onMouseMove={event => setHoverMoment(event.screenX)}/>
+          <rect
+            width={width}
+            height={height}
+            fill="white"
+            onMouseMove={(event) => setHoverMoment(event.screenX)}
+          />
           <AxisBottom
             xScale={xScale}
             innerHeight={innerHeight}

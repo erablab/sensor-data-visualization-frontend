@@ -13,6 +13,10 @@ import { useRef } from "react";
 import { HeatMap } from "./HeatMap/index.js";
 import {ContourMap} from "./ContourMap/index"
 
+
+import { VizWrapper } from "./ContourMap/index";
+
+
 // import { dropdownMenu } from "./DropdownMenu";
 import "./styles.css";
 import {
@@ -74,15 +78,15 @@ const App = () => {
   const [testBrushExtent, setTestBrushExtent] = useState();
   const [brushExtent, setBrushExtent] = useState();
   const [heatMapMomentExtent, setHeatMapMomentExtent] = useState();
+  const [refValue, setRefValue] = useState(null);
 
   useEffect(() => {
     const route = "http://localhost:3100/" + yAttribute;
     Axios.get(route, {}).then((response) => {
       setData(response.data.result);
     });
-    // ContourMap();
-
-  }, [yAttribute, heatMapMomentExtent]);
+    setRefValue(null);
+  }, [yAttribute, heatMapMomentExtent, sensorData]);
 
   if (!worldAtlas || !data || !testData) {
     return <pre>Loading...</pre>;
@@ -100,16 +104,15 @@ const App = () => {
         return date > testBrushExtent[0] && date < testBrushExtent[1];
       })
     : testData;
-    console.log(filteredTestData);
-  const oneDayMillis = 1000 * 60 * 60 * 24;
+    // console.log(filteredTestData);
 
   const filteredData = heatMapMomentExtent
     ? data.filter((d) => {
         const date = xValue(d);
         return date > heatMapMomentExtent[0] && date < heatMapMomentExtent[1];
       })
-    : data;
-    console.log(filteredData);
+    : [];
+
   return (
     <div>
       <svg width={width} height={height}>
@@ -128,7 +131,6 @@ const App = () => {
           />
         </g>
       </svg>
-
       <div className="menu-container">
         <span className="dropdown-label">Select Sensor Data</span>
         <ReactDropdown
@@ -137,6 +139,7 @@ const App = () => {
           onChange={({ value }) => setYAttribute(value)}
         />
       </div>
+      {/* <ContourMap data={data}/> */}
       {/* <svg width={width} height={height}>
         <g transform={`translate(0, ${height - dateHistogramSize * height})`}>
         <rect width={width} height={height} fill="black" onMouseMove={event => console.log(event.screenX)}/>
@@ -154,7 +157,8 @@ const App = () => {
           setHeatMapMomentExtent={setHeatMapMomentExtent}
         />
       </svg>
-      <svg width={width} height={height}>
+      <ContourMap data={filteredData} sensorData={sensorData}/>
+     <svg width={width} height={height}>
         <HeatMap
           data={data}
           filteredData={filteredData}
