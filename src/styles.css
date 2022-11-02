@@ -1,3 +1,7 @@
+.App {
+    text-align: center;
+  }
+  
 body {
     margin: 0;
     overflow: hidden;
@@ -62,7 +66,7 @@ circle {
   }
 
   .axis-label, .dropdown-label {
-    font-size: 2em;
+    font-size: 1em;
     fill: #635F5D;
     color: #635F5D;
   }

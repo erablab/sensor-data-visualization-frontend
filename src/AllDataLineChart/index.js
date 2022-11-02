@@ -28,7 +28,7 @@ let brushWindowEnd = null;
 const xV = (d) => d.x;
 const yV = (d) => d.y;
 
-export const LineChart = ({
+export const AllDataLineChart = ({
   data,
   width,
   height,
@@ -58,6 +58,7 @@ export const LineChart = ({
         x: array.x0,
       }));
   }, [xValue, yValue, xScale, data]);
+  console.log(binnedData);
   const yScale = useMemo(
     () =>
       scaleLinear()
