@@ -12,32 +12,34 @@ import {
   select,
   event,
   min,
+  format,
 } from "d3";
 import { useRef, useState, useEffect, useMemo } from "react";
 import { Marks } from "./Marks";
 import { AxisBottom } from "./AxisBottom";
 import { AxisLeft } from "./AxisLeft";
-const margin = { top: 0, right: 30, bottom: 20, left: 45 };
+const margin = { top: 0, right: 30, bottom: 200, left: 200 };
 const xAxisLabelOffset = 54;
 const yAxisLabelOffset = 30;
-const xAxisTickFormat = timeFormat("%m/%d/%Y");
+const xAxisTickFormat = timeFormat("%b");
+const yAxisTickFormat = format(".1f")
 
 const xAxisLabel = "Time";
-let brushWindowBegin = null;
-let brushWindowEnd = null;
 const xV = (d) => d.x;
 const yV = (d) => d.y;
+const width = 960;
+const height = 500;
 
 export const AllDataLineChart = ({
   data,
-  width,
-  height,
+  // width,
+  // height,
   xValue,
   yValue,
   yAxisLabel,
   setHeatMapMomentExtent,
 }) => {
-  const innerHeight = height - margin.top - margin.bottom;
+  const innerHeight = height - margin.top - margin.bottom +100;
   const innerWidth = width - margin.left - margin.right;
   const [hoverMoment, setHoverMoment] = useState();
   const xScale = useMemo(
@@ -45,7 +47,6 @@ export const AllDataLineChart = ({
       scaleTime().domain(extent(data, xValue)).range([0, innerWidth]).nice(),
     [data, xValue, innerWidth]
   );
-
   const binnedData = useMemo(() => {
     const [start, stop] = extent(data, xValue);
 
@@ -58,7 +59,6 @@ export const AllDataLineChart = ({
         x: array.x0,
       }));
   }, [xValue, yValue, xScale, data]);
-  console.log(binnedData);
   const yScale = useMemo(
     () =>
       scaleLinear()
@@ -103,7 +103,7 @@ export const AllDataLineChart = ({
           <rect
             width={width}
             height={height}
-            fill="white"
+            fill="#e4ebed"
             onMouseMove={(event) => setHoverMoment(event.screenX)}
           />
           <AxisBottom
@@ -115,28 +115,31 @@ export const AllDataLineChart = ({
           <text
             className="axis-label"
             textAnchor="middle"
-            transform={`translate(${-yAxisLabelOffset},${
-              innerHeight / 2
-            }) rotate(-90)`}
+            transform={`translate(40,${innerHeight / 2}) rotate(-90)`}
           >
             {yAxisLabel}
           </text>
-          <AxisLeft yScale={yScale} innerWidth={innerWidth} tickOffset={5} />
+          <AxisLeft yScale={yScale} innerWidth={innerWidth} tickFormat={yAxisTickFormat} tickOffset={5} />
+          {/* <text className="axis-label" x={300} y={220} textAnchor="middle">
+            {xAxisLabel}
+          </text> */}
           <text
             className="axis-label"
-            x={innerWidth / 2}
+            x={450}
             y={innerHeight + xAxisLabelOffset}
             textAnchor="middle"
           >
             {xAxisLabel}
           </text>
-          <Marks
-            binnedData={binnedData}
-            xScale={xScale}
-            yScale={yScale}
-            xValue={xV}
-            yValue={yV}
-          />
+          <g transform={`translate(100,0)`}>
+            <Marks
+              binnedData={binnedData}
+              xScale={xScale}
+              yScale={yScale}
+              xValue={xV}
+              yValue={yV}
+            />
+          </g>
         </g>
       </svg>
     </>

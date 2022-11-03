@@ -1,5 +1,5 @@
 import { geoNaturalEarth1, geoPath, geoGraticule } from 'd3';
-import { useMemo } from 'react'; 
+import { useRef, useState, useEffect, useMemo } from "react";
 import { Regions } from './Regions';
 
 const projection = geoNaturalEarth1();
@@ -7,8 +7,10 @@ const path = geoPath(projection);
 const graticule = geoGraticule();
 
 export const Marks = ({
-  worldAtlas: { land, interiors }
-}) => (
+  worldAtlas: { land, interiors },
+}) => {
+  const [hoverRegion, setHoverRegion] = useState(false);
+  return(
   <g className="marks">
     {useMemo(
       () => (
@@ -27,6 +29,6 @@ export const Marks = ({
       const [x, y] = projection([d.longitude,d.latitude]);
       return <circle cx={x} cy={y} r={d.radius} />;
     })}
-  </g>
-);
+  </g>);
+};
 

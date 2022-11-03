@@ -48,7 +48,7 @@ export const ContourMap = ({
   useEffect(() => {
     const brushBox = brush().extent([
       [0, 0],
-      [800, 800],
+      [400, 400],
     ]);
     brushBox(select(brushRef.current));
     brushBox.on("brush end", () => {
@@ -127,7 +127,7 @@ export const ContourMap = ({
   ]);
   return (
     <g>
-      <rect width={width} height={height} fill="white" />
+      <rect width={width} height={height} fill="#e4ebed" />
       <svg width={width} height={height} ref={ref} />
       <g ref={brushRef} />
       <svg width={width} height={height} id="dataviz_brushing2D"></svg>

@@ -16,33 +16,36 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import { Marks } from "./Marks";
 import { AxisBottom } from "./AxisBottom";
 import { AxisLeft } from "./AxisLeft";
-const margin = { top: 0, right: 30, bottom: 20, left: 45 };
-const xAxisLabelOffset = 54;
-const yAxisLabelOffset = 30;
-const xAxisTickFormat = timeFormat("%m/%d/%Y");
-
+const margin = { top: 20, right: 30, bottom: 200, left: 200 };
+const xAxisLabelOffset = 0;
+const yAxisLabelOffset = 0;
+const xAxisTickFormat = timeFormat("%m/%d");
 const xAxisLabel = "Time";
-let brushWindowBegin = null;
-let brushWindowEnd = null;
 const xCoord = (d) => d["latitude"];
 const yCoord = (d) => d["longitude"];
 const xTime = (d) => d["timestamp"];
+const width = 960;
+const height = 500;
 
 export const AreaLineChart = ({
   data,
-  width,
-  height,
+  // width,
+  // height,
   xValue,
   yValue,
   yAxisLabel,
   heatMapAreaExtent,
   heatMapMomentExtent,
 }) => {
-  const innerHeight = height - margin.top - margin.bottom;
+  const innerHeight = height - margin.top - margin.bottom +100;
   const innerWidth = width - margin.left - margin.right;
   const [hoverMoment, setHoverMoment] = useState();
   const timeScale = useMemo(
-    () => scaleTime().domain(heatMapMomentExtent?heatMapMomentExtent:[0,0]).range([0, innerWidth]).nice(),
+    () =>
+      scaleTime()
+        .domain(heatMapMomentExtent ? heatMapMomentExtent : [0, 0])
+        .range([0, innerWidth])
+        .nice(),
     [heatMapMomentExtent, innerWidth]
   );
   const xScale = useMemo(
@@ -57,18 +60,8 @@ export const AreaLineChart = ({
         .nice(),
     [heatMapAreaExtent, innerWidth]
   );
-  const yScale = useMemo(
-    () =>
-      scaleLinear()
-        .domain(
-          heatMapAreaExtent
-            ? [heatMapAreaExtent[2], heatMapAreaExtent[3]]
-            : [0, 0]
-        )
-        .range([innerHeight, 0]),
-    [heatMapAreaExtent, innerHeight]
-  );
-  const filteredAreaData =
+
+  const filteredData =
     heatMapAreaExtent && heatMapMomentExtent
       ? data.filter((d) => {
           const time = xTime(d);
@@ -85,20 +78,21 @@ export const AreaLineChart = ({
         })
       : [];
   const binnedData = useMemo(() => {
-    const [start, stop] = extent(filteredAreaData, xValue);
+    const [start, stop] = extent(filteredData, xValue);
     return bin()
       .value(xValue)
-      .domain(extent(filteredAreaData, xValue))
-      .thresholds(timeWeeks(start, stop))(filteredAreaData)
+      .domain(extent(filteredData, xValue))
+      .thresholds(timeWeeks(start, stop))(filteredData)
       .map((array) => ({
         y: mean(array, yValue),
         x: array.x0,
       }));
-  }, [xValue, yValue, xScale, filteredAreaData]);
+  }, [xValue, yValue, xScale, filteredData]);
+
   const valueScale = useMemo(
     () =>
       scaleLinear()
-        .domain(extent(binnedData, d=>d.y))
+        .domain(extent(binnedData, (d) => d.y))
         .range([innerHeight, 0]),
     [binnedData, innerHeight]
   );
@@ -132,13 +126,8 @@ export const AreaLineChart = ({
   return (
     <>
       <svg width={width} height={height} id="dataviz_brushing1D">
-        <g ref={brushRef}>
-          <rect
-            width={width}
-            height={height}
-            fill="white"
-            onMouseMove={(event) => setHoverMoment(event.screenX)}
-          />
+        <g>
+          <rect width={width} height={height} fill="#e4ebed" />
           <AxisBottom
             xScale={timeScale}
             innerHeight={innerHeight}
@@ -148,28 +137,31 @@ export const AreaLineChart = ({
           <text
             className="axis-label"
             textAnchor="middle"
-            transform={`translate(${-yAxisLabelOffset},${
-              innerHeight / 2
-            }) rotate(-90)`}
+            transform={`translate(40,${innerHeight / 2}) rotate(-90)`}
           >
             {yAxisLabel}
           </text>
           <AxisLeft yScale={valueScale} innerWidth={innerWidth} tickOffset={5} />
+          {/* <text className="axis-label" x={300} y={220} textAnchor="middle">
+            {xAxisLabel}
+          </text> */}
           <text
             className="axis-label"
-            x={innerWidth / 2}
-            y={innerHeight + xAxisLabelOffset}
+            x={400}
+            y={450}
             textAnchor="middle"
           >
             {xAxisLabel}
           </text>
-          <Marks
-            binnedData={binnedData}
-            xScale={timeScale}
-            yScale={valueScale}
-            xValue={(d) => d.x}
-            yValue={(d) => d.y}
-          />
+          <g transform={`translate(100,0)`}>
+            <Marks
+              binnedData={binnedData}
+              xScale={timeScale}
+              yScale={valueScale}
+              xValue={(d) => d.x}
+              yValue={(d) => d.y}
+            />
+          </g>
         </g>
       </svg>
     </>

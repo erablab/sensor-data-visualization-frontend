@@ -31,7 +31,7 @@ export const Marks = (
     .weight(function (d) {
       return opacityScale(opacityValue(d));
     })
-    .bandwidth(15)(data);
+    .bandwidth(20)(data);
 
   var colorArray = [
     "#2d69f8",

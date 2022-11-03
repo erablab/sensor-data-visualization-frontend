@@ -3,6 +3,8 @@ import ReactDOM from "react-dom";
 import { useWorldAtlas } from "./useWorldAtlas";
 import { useData } from "./useData";
 import ReactDropdown from "react-dropdown";
+import { Dropdown } from "./Dropdown";
+
 import { BubbleMap } from "./BubbleMap/index.js";
 import { MarkedMap } from "./MarkedMap/index.js";
 import { DateHistogram } from "./DateHistogram/index.js";
@@ -13,7 +15,6 @@ import { allData } from "./getAllSensorData";
 import { useRef } from "react";
 import { HeatMap } from "./HeatMap/index.js";
 import { ContourMap } from "./ContourMap/index";
-// import { dropdownMenu } from "./DropdownMenu";
 import "./styles.css";
 import {
   scaleLinear,
@@ -32,7 +33,7 @@ const width = 800;
 const height = 600;
 const dateHistogramSize = 0.4;
 const heatMapSize = 0.5;
-const margin = { top: 20, right: 30, bottom: 65, left: 90 };
+const margin = { top: 20, right: 30, bottom: 0, left: 90 };
 const xValue = (d) => d["timestamp"];
 const xCoord = (d) => d["latitude"];
 const yCoord = (d) => d["longitude"];
@@ -78,6 +79,8 @@ const App = () => {
   const [brushExtent, setBrushExtent] = useState();
   const [heatMapMomentExtent, setHeatMapMomentExtent] = useState();
   const [heatMapAreaExtent, setHeatMapAreaExtent] = useState();
+  const [hoverRegion, setHoverRegion] = useState(false);
+
 
   useEffect(() => {
     const route = "http://localhost:3100/" + yAttribute;
@@ -86,6 +89,7 @@ const App = () => {
     });
   }, [yAttribute, heatMapMomentExtent, heatMapAreaExtent, sensorData]);
 
+  console.log("Hover region set");
   if (!worldAtlas || !data || !testData) {
     return <pre>Loading...</pre>;
   }
@@ -112,10 +116,13 @@ const App = () => {
   console.log(heatMapAreaExtent);
 
   return (
-    <div id="fullpage">
+    <div>
+      <div className="label">
+        <label>Choose an Area to Get Started </label>
+      </div>
       <div className="section">
         <svg width={width} height={height}>
-          <MarkedMap worldAtlas={worldAtlas} />
+          <MarkedMap worldAtlas={worldAtlas} setHoverRegion={setHoverRegion} />
           {/* <dropdownMenu 
         options={}
         onOptionClicked=
@@ -131,12 +138,13 @@ const App = () => {
         </g> */}
         </svg>
       </div>
-      <div className="menu-container section">
-        <span className="dropdown-label">Select Sensor Data</span>
-        <ReactDropdown
+      <div className="section label">
+        <label for="sensor-type-select">Select Sensor Data: </label>
+        <Dropdown
           options={attributes}
-          value={yAttribute}
-          onChange={({ value }) => setYAttribute(value)}
+          id="sensor-type-select"
+          selectedValue={yAttribute}
+          onSelectedValueChange={setYAttribute}
         />
       </div>
       {/* <ContourMap data={data}/> */}
@@ -145,33 +153,32 @@ const App = () => {
         <rect width={width} height={height} fill="black" onMouseMove={event => console.log(event.screenX)}/>
         </g>
       </svg> */}
+      <svg width={960} height={500}>
+        <AllDataLineChart
+          data={data}
+          width={width}
+          height={dateHistogramSize * height}
+          xValue={xValue}
+          yValue={yValue}
+          yAxisLabel={yAxisLabel}
+          setHeatMapMomentExtent={setHeatMapMomentExtent}
+        />
+      </svg>
+      <div className="axis-label"></div>
       <div className="section">
-        <svg width={width} height={dateHistogramSize * height}>
-          <AllDataLineChart
-            data={data}
-            width={width}
-            height={dateHistogramSize * height}
-            xValue={xValue}
-            yValue={yValue}
-            yAxisLabel={yAxisLabel}
-            setHeatMapMomentExtent={setHeatMapMomentExtent}
-          />
-        </svg>
-      </div>
-      <div className="section">
-        <svg width={300} height={300}>
+        <svg width={400} height={400} className="ContourMap">
           <ContourMap
             data={data}
             sensorData={sensorData}
             setBrushExtent={setHeatMapAreaExtent}
-            width={300}
-            height={300}
+            width={400}
+            height={400}
             heatMapMomentExtent={heatMapMomentExtent}
           />
         </svg>
       </div>
-      <div className="section">
-        <svg width={width} height={dateHistogramSize * height}>
+      <div>
+        <svg width={960} height={500}>
           <AreaLineChart
             data={data}
             width={width}
