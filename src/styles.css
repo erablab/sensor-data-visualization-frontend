@@ -45,7 +45,7 @@ pre {
     stroke: white;
 }
 
-circle {
+.bubble {
     fill: #134a80;
     opacity: 0.3;
 }

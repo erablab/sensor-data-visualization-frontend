@@ -6,7 +6,10 @@ const projection = geoNaturalEarth1();
 const path = geoPath(projection);
 const graticule = geoGraticule();
 
-export const Marks = ({ worldAtlas: { land, interiors }, setSelectedRegion }) => {
+export const Marks = ({
+  worldAtlas: { land, interiors },
+  setSelectedRegion,
+}) => {
   const [hoverRegion, setHoverRegion] = useState();
   useEffect(() => {
     setSelectedRegion([hoverRegion]);
@@ -31,6 +34,7 @@ export const Marks = ({ worldAtlas: { land, interiors }, setSelectedRegion }) =>
         return (
           <g>
             <circle
+              className="bubble"
               cx={x}
               cy={y}
               r={d.radius}

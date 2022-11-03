@@ -11,6 +11,7 @@ import {
   min,
   timeDays,
   timeWeeks,
+  deviation,
 } from "d3";
 import { useRef, useState, useEffect, useMemo } from "react";
 import { Marks } from "./Marks";
@@ -85,14 +86,15 @@ export const AreaLineChart = ({
       .map((array) => ({
         y: mean(array, yValue),
         x: array.x0,
+        s: deviation(array, yValue),
       }));
   }, [xValue, yValue, xScale, filteredData]);
 
   const valueScale = useMemo(
     () =>
       scaleLinear()
-        .domain(extent(binnedData, (d) => d.y))
-        .range([innerHeight, 0]),
+      .domain([(min(binnedData, (d) => d.y)-max(binnedData, (d)=>d.s)), (max(binnedData, (d) => d.y)+max(binnedData, (d)=>d.s))])
+      .range([innerHeight, 0]),
     [binnedData, innerHeight]
   );
 
@@ -133,6 +135,7 @@ export const AreaLineChart = ({
               yScale={valueScale}
               xValue={(d) => d.x}
               yValue={(d) => d.y}
+              sValue={(d) => d.s}
             />
           </g>
         </g>

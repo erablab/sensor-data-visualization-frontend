@@ -15,6 +15,7 @@ import { allData } from "./getAllSensorData";
 import { useRef } from "react";
 import { HeatMap } from "./HeatMap/index.js";
 import { ContourMap } from "./ContourMap/index";
+import{PowerSensorLineChart} from "./PowerSensorLineChart/index";
 import "./styles.css";
 import {
   scaleLinear,
@@ -54,7 +55,7 @@ const attributes = [
     value: "air_quality_sensor/tvoc",
     label: "Total Volatile Organic Compounds",
   },
-  { value: "power_sensor/eco2", label: "CO2" },
+  { value: "air_quality_sensor/eco2", label: "CO2" },
   { value: "power_sensor/pb", label: "Power from the Battery" },
   { value: "power_sensor/vb", label: "Voltage of the Battery" },
   { value: "power_sensor/ib", label: "Current from the Battery" },
@@ -73,6 +74,7 @@ const getLabel = (value) => {
 
 const App = () => {
   const [yAttribute, setYAttribute] = useState();
+  const sensorType = yAttribute ? yAttribute.split("/")[0] : null;
   const sensorData = yAttribute ? yAttribute.split("/")[1] : null;
   const [data, setData] = useState();
   const yAxisLabel = getLabel(yAttribute);
@@ -87,21 +89,23 @@ const App = () => {
 
   useEffect(() => {
     if (yAttribute) {
-      console.log(yAttribute);
       const route = "http://localhost:3100/" + yAttribute;
       Axios.get(route, {}).then((response) => {
-        console.log(response);
-        console.log(response.data.result);
         setData(response.data.result);
       });
     }
   }, [yAttribute, heatMapMomentExtent, heatMapAreaExtent, sensorData]);
 
-  console.log(heatMapAreaExtent);
 
-  if (data) {
+  if (sensorType!=="power_sensor" &&data) {
     data.map((d) => {
       const parseTime = timeParse("%Y-%m-%dT%H:%M:%S.000Z");
+      d.timestamp = parseTime(d.timestamp);
+      return d;
+    });
+  }else if (data){
+    data.map((d) => {
+      const parseTime = timeParse("%Y-%m-%d %H:%M:%S");
       d.timestamp = parseTime(d.timestamp);
       return d;
     });
@@ -166,53 +170,87 @@ const App = () => {
         </g>
       </svg> */}
 
-          {data && (
-            <g>
-              <svg width={960} height={500}>
-                <AllDataLineChart
-                  data={data}
-                  width={width}
-                  height={dateHistogramSize * height}
-                  xValue={xValue}
-                  yValue={yValue}
-                  yAxisLabel={yAxisLabel}
-                  setHeatMapMomentExtent={setHeatMapMomentExtent}
-                />
-              </svg>
-              {heatMapMomentExtent && (
-                <g>
-                  <div className="section">
-                    <svg width={400} height={400} className="ContourMap">
-                      <ContourMap
-                        data={data}
-                        sensorData={sensorData}
-                        setBrushExtent={setHeatMapAreaExtent}
-                        width={400}
-                        height={400}
-                        heatMapMomentExtent={heatMapMomentExtent}
-                      />
-                    </svg>
-                  </div>
-                  {heatMapAreaExtent && (
-                    <div>
-                      <svg width={960} height={500}>
-                        <AreaLineChart
+          {data &&
+            (sensorData === "t" ||
+              sensorData === "p" ||
+              sensorData === "a" ||
+              sensorData === "h" ||
+              sensorData === "mSoil" ||
+              sensorData === "tSoil" ||
+              sensorData === "lVis" ||
+              sensorData === "lIR" ||
+              sensorData === "lLux" ||
+              sensorData === "lFull" ||
+              sensorData === "tvoc" ||
+              sensorData === "eco2") && (
+              <g>
+                <svg width={960} height={500}>
+                  <AllDataLineChart
+                    data={data}
+                    width={width}
+                    height={dateHistogramSize * height}
+                    xValue={xValue}
+                    yValue={yValue}
+                    yAxisLabel={yAxisLabel}
+                    setHeatMapMomentExtent={setHeatMapMomentExtent}
+                  />
+                </svg>
+                {heatMapMomentExtent && (
+                  <g>
+                    <div className="section">
+                      <svg width={400} height={400} className="ContourMap">
+                        <ContourMap
                           data={data}
-                          width={width}
-                          height={dateHistogramSize * height}
-                          xValue={xValue}
-                          yValue={yValue}
-                          yAxisLabel={yAxisLabel}
+                          sensorData={sensorData}
+                          setBrushExtent={setHeatMapAreaExtent}
+                          width={400}
+                          height={400}
                           heatMapMomentExtent={heatMapMomentExtent}
-                          heatMapAreaExtent={heatMapAreaExtent}
                         />
                       </svg>
                     </div>
-                  )}
-                </g>
-              )}
-            </g>
-          )}
+                    {heatMapAreaExtent && (
+                      <div>
+                        <svg width={960} height={500}>
+                          <AreaLineChart
+                            data={data}
+                            width={width}
+                            height={dateHistogramSize * height}
+                            xValue={xValue}
+                            yValue={yValue}
+                            yAxisLabel={yAxisLabel}
+                            heatMapMomentExtent={heatMapMomentExtent}
+                            heatMapAreaExtent={heatMapAreaExtent}
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </g>
+                )}
+              </g>
+            )}
+
+          {data &&
+            (sensorData === "pb" ||
+              sensorData === "vb" ||
+              sensorData === "ib" ||
+              sensorData === "pc" ||
+              sensorData === "vc" ||
+              sensorData === "ic") && (
+              <g>
+                <svg width={960} height={500}>
+                  <PowerSensorLineChart
+                    data={data}
+                    width={width}
+                    height={dateHistogramSize * height}
+                    xValue={xValue}
+                    yValue={yValue}
+                    yAxisLabel={yAxisLabel}
+                    setHeatMapMomentExtent={setHeatMapMomentExtent}
+                  />
+                </svg>
+              </g>
+            )}
 
           {/* <svg width={width} height={height}>
         <HeatMap
