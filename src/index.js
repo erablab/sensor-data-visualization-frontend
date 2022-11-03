@@ -39,8 +39,6 @@ const xCoord = (d) => d["latitude"];
 const yCoord = (d) => d["longitude"];
 const xTestValue = (d) => d["Reported Date"];
 
-const initialYAttribute = "temp_hmd_pres_alt_sensor/t";
-
 const attributes = [
   { value: "temp_hmd_pres_alt_sensor/t", label: "Air Temperature" },
   { value: "temp_hmd_pres_alt_sensor/p", label: "Air Pressure" },
@@ -56,7 +54,13 @@ const attributes = [
     value: "air_quality_sensor/tvoc",
     label: "Total Volatile Organic Compounds",
   },
-  { value: "air_quality_sensor/eco2", label: "CO2" },
+  { value: "power_sensor/eco2", label: "CO2" },
+  { value: "power_sensor/pb", label: "Power from the Battery" },
+  { value: "power_sensor/vb", label: "Voltage of the Battery" },
+  { value: "power_sensor/ib", label: "Current from the Battery" },
+  { value: "power_sensor/pc", label: "Power from the Circuit" },
+  { value: "power_sensor/vc", label: "Voltage of the Circuit" },
+  { value: "power_sensor/ic", label: "Current from the Circuit" },
 ];
 
 const getLabel = (value) => {
@@ -68,9 +72,9 @@ const getLabel = (value) => {
 };
 
 const App = () => {
-  const [yAttribute, setYAttribute] = useState(initialYAttribute);
-  const sensorData = yAttribute.split("/")[1];
-  const [data, setData] = useState(null);
+  const [yAttribute, setYAttribute] = useState();
+  const sensorData = yAttribute ? yAttribute.split("/")[1] : null;
+  const [data, setData] = useState();
   const yAxisLabel = getLabel(yAttribute);
   const worldAtlas = useWorldAtlas();
   const testData = useData();
@@ -79,26 +83,33 @@ const App = () => {
   const [brushExtent, setBrushExtent] = useState();
   const [heatMapMomentExtent, setHeatMapMomentExtent] = useState();
   const [heatMapAreaExtent, setHeatMapAreaExtent] = useState();
-  const [hoverRegion, setHoverRegion] = useState(false);
-
+  const [selectedRegion, setSelectedRegion] = useState([null]);
 
   useEffect(() => {
-    const route = "http://localhost:3100/" + yAttribute;
-    Axios.get(route, {}).then((response) => {
-      setData(response.data.result);
-    });
+    if (yAttribute) {
+      console.log(yAttribute);
+      const route = "http://localhost:3100/" + yAttribute;
+      Axios.get(route, {}).then((response) => {
+        console.log(response);
+        console.log(response.data.result);
+        setData(response.data.result);
+      });
+    }
   }, [yAttribute, heatMapMomentExtent, heatMapAreaExtent, sensorData]);
 
-  console.log("Hover region set");
-  if (!worldAtlas || !data || !testData) {
-    return <pre>Loading...</pre>;
+  console.log(heatMapAreaExtent);
+
+  if (data) {
+    data.map((d) => {
+      const parseTime = timeParse("%Y-%m-%dT%H:%M:%S.000Z");
+      d.timestamp = parseTime(d.timestamp);
+      return d;
+    });
   }
 
-  data.map((d) => {
-    const parseTime = timeParse("%Y-%m-%dT%H:%M:%S.000Z");
-    d.timestamp = parseTime(d.timestamp);
-    return d;
-  });
+  if (!worldAtlas) {
+    return <pre>Loading...</pre>;
+  }
 
   const filteredTestData = testBrushExtent
     ? testData.filter((d) => {
@@ -113,7 +124,6 @@ const App = () => {
         return date > heatMapMomentExtent[0] && date < heatMapMomentExtent[1];
       })
     : data;
-  console.log(heatMapAreaExtent);
 
   return (
     <div>
@@ -122,11 +132,10 @@ const App = () => {
       </div>
       <div className="section">
         <svg width={width} height={height}>
-          <MarkedMap worldAtlas={worldAtlas} setHoverRegion={setHoverRegion} />
-          {/* <dropdownMenu 
-        options={}
-        onOptionClicked=
-      /> */}
+          <MarkedMap
+            worldAtlas={worldAtlas}
+            setSelectedRegion={setSelectedRegion}
+          />
           {/* <g transform={`translate(0, ${height - dateHistogramSize * height})`}>
           <DateHistogram
             data={testData}
@@ -138,73 +147,89 @@ const App = () => {
         </g> */}
         </svg>
       </div>
-      <div className="section label">
-        <label for="sensor-type-select">Select Sensor Data: </label>
-        <Dropdown
-          options={attributes}
-          id="sensor-type-select"
-          selectedValue={yAttribute}
-          onSelectedValueChange={setYAttribute}
-        />
-      </div>
-      {/* <ContourMap data={data}/> */}
-      {/* <svg width={width} height={height}>
+
+      {selectedRegion[0] != null && (
+        <g>
+          <div className="section label">
+            <label for="sensor-type-select">Select Sensor Data: </label>
+            <Dropdown
+              options={attributes}
+              id="sensor-type-select"
+              selectedValue={yAttribute}
+              onSelectedValueChange={setYAttribute}
+            />
+          </div>
+          {/* <ContourMap data={data}/> */}
+          {/* <svg width={width} height={height}>
         <g transform={`translate(0, ${height - dateHistogramSize * height})`}>
         <rect width={width} height={height} fill="black" onMouseMove={event => console.log(event.screenX)}/>
         </g>
       </svg> */}
-      <svg width={960} height={500}>
-        <AllDataLineChart
-          data={data}
-          width={width}
-          height={dateHistogramSize * height}
-          xValue={xValue}
-          yValue={yValue}
-          yAxisLabel={yAxisLabel}
-          setHeatMapMomentExtent={setHeatMapMomentExtent}
-        />
-      </svg>
-      <div className="axis-label"></div>
-      <div className="section">
-        <svg width={400} height={400} className="ContourMap">
-          <ContourMap
-            data={data}
-            sensorData={sensorData}
-            setBrushExtent={setHeatMapAreaExtent}
-            width={400}
-            height={400}
-            heatMapMomentExtent={heatMapMomentExtent}
-          />
-        </svg>
-      </div>
-      <div>
-        <svg width={960} height={500}>
-          <AreaLineChart
-            data={data}
-            width={width}
-            height={dateHistogramSize * height}
-            xValue={xValue}
-            yValue={yValue}
-            yAxisLabel={yAxisLabel}
-            heatMapMomentExtent={heatMapMomentExtent}
-            heatMapAreaExtent={heatMapAreaExtent}
-          />
-        </svg>
-      </div>
-      {/* <svg width={width} height={height}>
+
+          {data && (
+            <g>
+              <svg width={960} height={500}>
+                <AllDataLineChart
+                  data={data}
+                  width={width}
+                  height={dateHistogramSize * height}
+                  xValue={xValue}
+                  yValue={yValue}
+                  yAxisLabel={yAxisLabel}
+                  setHeatMapMomentExtent={setHeatMapMomentExtent}
+                />
+              </svg>
+              {heatMapMomentExtent && (
+                <g>
+                  <div className="section">
+                    <svg width={400} height={400} className="ContourMap">
+                      <ContourMap
+                        data={data}
+                        sensorData={sensorData}
+                        setBrushExtent={setHeatMapAreaExtent}
+                        width={400}
+                        height={400}
+                        heatMapMomentExtent={heatMapMomentExtent}
+                      />
+                    </svg>
+                  </div>
+                  {heatMapAreaExtent && (
+                    <div>
+                      <svg width={960} height={500}>
+                        <AreaLineChart
+                          data={data}
+                          width={width}
+                          height={dateHistogramSize * height}
+                          xValue={xValue}
+                          yValue={yValue}
+                          yAxisLabel={yAxisLabel}
+                          heatMapMomentExtent={heatMapMomentExtent}
+                          heatMapAreaExtent={heatMapAreaExtent}
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </g>
+              )}
+            </g>
+          )}
+
+          {/* <svg width={width} height={height}>
         <HeatMap
           data={data}
           filteredData={filteredTemperalData}
           sensorData={sensorData}
         />
       </svg> */}
-      {/* <svg width={width} height={height}>
+          {/* <svg width={width} height={height}>
         <BubbleMap
           data={testData}
           filteredData={filteredTestData}
           worldAtlas={worldAtlas}
         />
       </svg> */}
+        </g>
+      )}
     </div>
   );
 };

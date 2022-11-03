@@ -76,12 +76,6 @@ export const ContourMap = ({
       brushWindowEndY = rectHeight
         ? parseInt(brushWindowBeginY) + parseInt(rectHeight["value"])
         : null;
-      console.log(
-        brushWindowBeginX,
-        brushWindowBeginY,
-        brushWindowEndX,
-        brushWindowEndY
-      );
       if (
         !brushWindowBeginX &&
         !brushWindowEndX &&

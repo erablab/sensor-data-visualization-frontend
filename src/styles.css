@@ -82,12 +82,13 @@ circle {
     max-height: 400px;
 }
 
-.axis-label{
+.axis-label {
     font-size: 1.2em;
     fill: #635F5D;
     color: #635F5D;
     margin: 10px;
 }
+
 .label {
     font-size: 1em;
     fill: #635F5D;
@@ -101,20 +102,20 @@ circle {
 }
 
 
-#sensor-type-select{
+#sensor-type-select {
     font-size: 1.5em;
     fill: #635F5D;
     color: #635F5D;
 }
 
-label{
+label {
     font-size: 2em;
     fill: #083356a8;
     color: #083356a8;
     margin: 20px;
 }
 
-.ContourMap{
+.ContourMap {
     margin-left: auto;
     margin-right: auto;
     width: 40%;
@@ -124,4 +125,18 @@ label{
 circle:hover {
     fill: #31C6D4;
     opacity: 0.8;
-  }
+}
+
+
+button {
+    background-color:#134a80;
+    /* opacity: 0.3; */
+    border: none;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 50%;
+}

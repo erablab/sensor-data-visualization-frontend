@@ -39,7 +39,6 @@ export const AreaLineChart = ({
 }) => {
   const innerHeight = height - margin.top - margin.bottom +100;
   const innerWidth = width - margin.left - margin.right;
-  const [hoverMoment, setHoverMoment] = useState();
   const timeScale = useMemo(
     () =>
       scaleTime()
@@ -96,32 +95,6 @@ export const AreaLineChart = ({
         .range([innerHeight, 0]),
     [binnedData, innerHeight]
   );
-  const brushRef = useRef();
-
-  useEffect(() => {
-    // const brush = brushX().extent([
-    //   [0, 0],
-    //   [innerWidth, innerHeight],
-    // ]);
-    // brush(select(brushRef.current));
-    // brush.on("brush end", () => {
-    //   const rectBeginX =
-    //     brushRef["current"].getElementsByClassName("handle--w")["0"][
-    //       "attributes"
-    //     ]["x"];
-    //   const rectEndX =
-    //     brushRef["current"].getElementsByClassName("handle--e")["0"][
-    //       "attributes"
-    //     ]["x"];
-    //   brushWindowBegin = rectBeginX ? rectBeginX["value"] : null;
-    //   brushWindowEnd = rectEndX ? rectEndX["value"] : null;
-    //   if (!brushWindowBegin && !brushWindowEnd) {
-    //     setBrushExtent(null);
-    //   } else {
-    //     setBrushExtent([brushWindowBegin, brushWindowEnd].map(xScale.invert));
-    //   }
-    // });
-  }, [innerWidth, innerHeight, hoverMoment]);
 
   return (
     <>

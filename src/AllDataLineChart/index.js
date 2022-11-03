@@ -66,7 +66,7 @@ export const AllDataLineChart = ({
         .range([innerHeight, 0]),
     [binnedData, innerHeight]
   );
-  const brushRef = useRef();
+  // const brushRef = useRef();
 
   useEffect(() => {
     // const brush = brushX().extent([
@@ -91,20 +91,20 @@ export const AllDataLineChart = ({
     //     setBrushExtent([brushWindowBegin, brushWindowEnd].map(xScale.invert));
     //   }
     // });
-    setHeatMapMomentExtent(
-      [hoverMoment - 20, hoverMoment + 20].map(xScale.invert)
+    setHeatMapMomentExtent( hoverMoment ?
+      [hoverMoment - 20, hoverMoment + 20].map(xScale.invert): null
     );
   }, [innerWidth, innerHeight, hoverMoment]);
 
   return (
     <>
-      <svg width={width} height={height} id="dataviz_brushing1D">
-        <g ref={brushRef}>
+      {/* <svg width={width} height={height}> */}
+        {/* <g ref={brushRef}> */}
           <rect
             width={width}
             height={height}
             fill="#e4ebed"
-            onMouseMove={(event) => setHoverMoment(event.screenX)}
+            onMouseMove={(event) => setHoverMoment(event.screenX - 200)}
           />
           <AxisBottom
             xScale={xScale}
@@ -140,8 +140,8 @@ export const AllDataLineChart = ({
               yValue={yV}
             />
           </g>
-        </g>
-      </svg>
+        {/* </g> */}
+      {/* </svg> */}
     </>
   );
 };
