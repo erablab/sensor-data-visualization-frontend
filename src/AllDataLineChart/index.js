@@ -44,7 +44,6 @@ export const AllDataLineChart = ({
   const innerHeight = height - margin.top - margin.bottom + 100;
   const innerWidth = width - margin.left - margin.right;
   const xScale = useMemo(() => {
-    console.log("calculating xScale");
     return scaleTime()
       .domain(extent(data, xValue))
       .range([0, innerWidth])
@@ -52,7 +51,6 @@ export const AllDataLineChart = ({
   }, [data, xValue, innerWidth]);
   const binnedData = useMemo(() => {
     const [start, stop] = extent(data, xValue);
-    console.log("calculating binnedData");
 
     return bin()
       .value(xValue)
@@ -74,9 +72,6 @@ export const AllDataLineChart = ({
       ])
       .range([innerHeight, 0]);
   }, [binnedData, innerHeight]);
-  console.log("called");
-  // useEffect(() => {
-  // }, [innerWidth, innerHeight]);
 
   return (
     <>
