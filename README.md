@@ -6,7 +6,7 @@ In the project directory, run:
 
 ### `npm install`
 
-This will install the server dependencies
+This will install the required dependencies
 
 ### `npm start`
 
