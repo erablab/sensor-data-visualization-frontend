@@ -17,4 +17,4 @@ The page will reload when you make changes.
 You may also see any lint errors in the console.
 
 
-[<img alt="Chart" src="../public/logo192.png" width="295" height="295">]
+[<img alt="Chart" src="logo192.png" width="295" height="295">]
