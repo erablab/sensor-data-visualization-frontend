@@ -89,7 +89,7 @@ const App = () => {
 
   useEffect(() => {
     if (yAttribute) {
-      const route = "http://localhost:3100/" + yAttribute;
+      const route = "http://localhost:3100/raw/" + yAttribute;
       Axios.get(route, {}).then((response) => {
         setData(response.data.result);
       });
