@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect, useMemo } from "react";
 import { scaleLinear, select, extent, brush } from "d3";
 import { Marks } from "./Marks";
-import { GridMapConverter } from "./GridMapConverter";
 
 const margin = { top: 0, right: 30, bottom: 20, left: 45 };
 const xValue = (d) => d["latitude"];
