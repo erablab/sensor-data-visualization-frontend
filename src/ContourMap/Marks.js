@@ -31,7 +31,7 @@ export const Marks = (
     .weight(function (d) {
       return opacityScale(opacityValue(d));
     })
-    .bandwidth(20)(data);
+    .bandwidth(10)(data);
 
   var colorArray = [
     "#2d69f8",
@@ -67,7 +67,6 @@ export const Marks = (
       1,
     ])
     .range(colorArray);
-
   selection
     .append("g")
     .selectAll("path")

@@ -10,13 +10,13 @@ export const Marks = ({ data, opacityScale, opacityValue, xScale, yScale }) => (
         <svg height="300" width="300">
           <defs>
             <filter id="f1" x="0" y="0">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="20" />
+              <feGaussianBlur in="SourceGraphic" stdDeviation="40" />
             </filter>
           </defs>
           <circle
             cx={x}
             cy={y}
-            r={80}
+            r={60}
             fillOpacity={opacityScale(opacityValue(d))}
             filter="url(#f1)"
           />

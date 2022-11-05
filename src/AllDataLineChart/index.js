@@ -19,6 +19,7 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import { Marks } from "./Marks";
 import { AxisBottom } from "./AxisBottom";
 import { AxisLeft } from "./AxisLeft";
+
 const margin = { top: 0, right: 30, bottom: 200, left: 200 };
 const xAxisLabelOffset = 54;
 const yAxisLabelOffset = 30;

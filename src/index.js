@@ -15,7 +15,7 @@ import { allData } from "./getAllSensorData";
 import { useRef } from "react";
 import { HeatMap } from "./HeatMap/index.js";
 import { ContourMap } from "./ContourMap/index";
-import{PowerSensorLineChart} from "./PowerSensorLineChart/index";
+import { PowerSensorLineChart } from "./PowerSensorLineChart/index";
 import "./styles.css";
 import {
   scaleLinear,
@@ -96,14 +96,13 @@ const App = () => {
     }
   }, [yAttribute, heatMapMomentExtent, heatMapAreaExtent, sensorData]);
 
-
-  if (sensorType!=="power_sensor" &&data) {
+  if (sensorType !== "power_sensor" && data) {
     data.map((d) => {
       const parseTime = timeParse("%Y-%m-%dT%H:%M:%S.000Z");
       d.timestamp = parseTime(d.timestamp);
       return d;
     });
-  }else if (data){
+  } else if (data) {
     data.map((d) => {
       const parseTime = timeParse("%Y-%m-%d %H:%M:%S");
       d.timestamp = parseTime(d.timestamp);

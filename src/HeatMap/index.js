@@ -20,8 +20,11 @@ const innerHeight = 400;
 const innerWidth = 400;
 
 export const HeatMap = ({ data, filteredData, sensorData }) => {
+  console.log(data);
+  console.log(filteredData);
+  console.log(sensorData);
   const opacityValue = (d) => d[sensorData];
-
+  console.log(opacityValue);
   const opacityScale = useMemo(
     () =>
       scaleLinear()
